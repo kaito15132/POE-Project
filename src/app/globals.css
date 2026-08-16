@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+body { @apply bg-ink text-slate-200 antialiased; background-image: radial-gradient(circle at 75% -10%, rgba(86,213,208,.1), transparent 32%); }
+input, select, textarea { @apply rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none transition focus:border-cyan; }
+button { @apply transition; }
