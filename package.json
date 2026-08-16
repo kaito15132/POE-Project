@@ -2,25 +2,14 @@
   "name": "watchers-eye-market-analyzer",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "npm@11.4.2",
-  "engines": {
-    "node": ">=20.0.0"
-  },
   "scripts": {
-    "predev": "npm run check:dependencies",
     "dev": "next dev",
-    "prebuild": "npm run check:dependencies",
     "build": "next build",
-    "start": "next start",
-    "check:dependencies": "node scripts/check-dependencies.mjs",
+    "lint": "next lint",
     "test": "vitest run",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio",
-    "setup": "npm run check:dependencies && npm run db:generate"
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "6.8.2",
@@ -42,5 +31,6 @@
     "tsx": "4.19.4",
     "typescript": "5.8.3",
     "vitest": "3.1.4"
-  }
+  },
+  "prisma": { "seed": "tsx prisma/seed.ts" }
 }
