@@ -1,9 +1,8 @@
 node_modules
 .next
 .env
-*.db
-*.db-journal
-*.db-shm
-*.db-wal
+prisma/dev.db
+prisma/dev.db-journal
 *.log
 .DS_Store
+
