@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Modifier {
+  id                  String                @id @default(cuid())
+  internalKey         String                @unique
+  aura                String
+  displayText         String
+  statDescription     String?
+  minRoll             Float?
+  maxRoll             Float?
+  weight              Int?
+  category            String                @default("Other")
+  notes               String?
+  enabled             Boolean               @default(true)
+  favorite            Boolean               @default(false)
+  modifierDemandScore Float?
+  auraPopularityScore Float?
+  metaScore           Float?
+  metaLastUpdated     DateTime?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  rolls               ModifierRoll[]
+  combinations        CombinationModifier[]
+  listingModifiers    ListingModifier[]
+  ratings             UserRating[]
+  researchStatuses    ResearchStatus[]
+
+  @@index([aura])
+  @@index([enabled])
+}
+
+model ModifierRoll {
+  id                   String              @id @default(cuid())
+  modifierId           String
+  observedValue        Float
+  minimumAtObservation Float?
+  maximumAtObservation Float?
+  listingObservationId String?
+  createdAt            DateTime            @default(now())
+  modifier             Modifier            @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  listingObservation   ListingObservation? @relation(fields: [listingObservationId], references: [id], onDelete: SetNull)
+}
+
+model Combination {
+  id               String                @id @default(cuid())
+  canonicalKey     String                @unique
+  modifierCount    Int
+  enabled          Boolean               @default(true)
+  impossible       Boolean               @default(false)
+  irrelevant       Boolean               @default(false)
+  favorite         Boolean               @default(false)
+  researchPriority Int                   @default(0)
+  notes            String?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  modifiers        CombinationModifier[]
+  observations     MarketObservation[]
+  listings         ListingObservation[]
+  researchStatuses ResearchStatus[]
+}
+
+model CombinationModifier {
+  combinationId String
+  modifierId    String
+  combination   Combination @relation(fields: [combinationId], references: [id], onDelete: Cascade)
+  modifier      Modifier    @relation(fields: [modifierId], references: [id], onDelete: Restrict)
+
+  @@id([combinationId, modifierId])
+  @@index([modifierId])
+}
+
+model League {
+  id           String               @id @default(cuid())
+  leagueName   String               @unique
+  startDate    DateTime?
+  endDate      DateTime?
+  active       Boolean              @default(false)
+  observations MarketObservation[]
+  listings     ListingObservation[]
+  currencyRates CurrencyRate[]
+}
+
+model MarketObservation {
+  id                   String      @id @default(cuid())
+  leagueId             String
+  combinationId        String
+  observedAt           DateTime    @default(now())
+  originalPrice        Float?
+  originalCurrency     String?
+  normalizedChaosValue Float?
+  numberOfListings     Int?
+  lowestListing        Float?
+  medianPrice          Float?
+  meanPrice            Float?
+  trimmedMean          Float?
+  p25                   Float?
+  p75                   Float?
+  p90                   Float?
+  highPrice             Float?
+  notes                 String?
+  source                String     @default("MANUAL")
+  confidence            String?
+  excluded              Boolean    @default(false)
+  exclusionReason       String?
+  league                 League      @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  combination            Combination @relation(fields: [combinationId], references: [id], onDelete: Restrict)
+
+  @@index([leagueId, combinationId, observedAt])
+}
+
+model ListingObservation {
+  id                   String         @id @default(cuid())
+  itemId               String?
+  sellerIdentifier     String?
+  leagueId             String
+  combinationId        String?
+  listedPrice          Float
+  currency             String
+  normalizedChaosPrice Float?
+  rollsJson            String?
+  firstSeen            DateTime       @default(now())
+  lastSeen             DateTime       @default(now())
+  active               Boolean        @default(true)
+  excluded             Boolean        @default(false)
+  exclusionReason      String?
+  league               League         @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  combination          Combination?   @relation(fields: [combinationId], references: [id], onDelete: SetNull)
+  modifiers            ListingModifier[]
+  modifierRolls        ModifierRoll[]
+
+  @@index([itemId])
+}
+
+model ListingModifier {
+  listingObservationId String
+  modifierId           String
+  listingObservation   ListingObservation @relation(fields: [listingObservationId], references: [id], onDelete: Cascade)
+  modifier             Modifier           @relation(fields: [modifierId], references: [id], onDelete: Restrict)
+  @@id([listingObservationId, modifierId])
+}
+
+model AuraSynergy {
+  id        String   @id @default(cuid())
+  auraA     String
+  auraB     String
+  score     Float?
+  notes     String?
+  updatedAt DateTime @updatedAt
+  @@unique([auraA, auraB])
+}
+
+model UserRating {
+  id         String   @id @default(cuid())
+  modifierId String
+  rating     String
+  notes      String?
+  updatedAt  DateTime @updatedAt
+  modifier   Modifier @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  @@unique([modifierId])
+}
+
+model ResearchStatus {
+  id            String       @id @default(cuid())
+  modifierId    String?
+  combinationId String?
+  status        String       @default("UNRESEARCHED")
+  notes         String?
+  recheck       Boolean      @default(false)
+  updatedAt     DateTime     @updatedAt
+  modifier      Modifier?    @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  combination   Combination? @relation(fields: [combinationId], references: [id], onDelete: Cascade)
+  @@unique([modifierId])
+  @@unique([combinationId])
+}
+
+model ApplicationSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model CurrencyRate {
+  id             String   @id @default(cuid())
+  leagueId       String
+  currency       String
+  chaosPerUnit   Float
+  effectiveAt    DateTime @default(now())
+  source         String   @default("MANUAL")
+  league         League   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  @@index([leagueId, currency, effectiveAt])
+}

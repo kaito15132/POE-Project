@@ -1,0 +1,16 @@
+import { Sidebar } from "@/components/sidebar";
+import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
+
+const cards = [
+  ["Top Opportunities", "Pricing arrives in Milestone 4", "Opportunity scores remain unavailable until observed listings exist."],
+  ["Top Synergy Pairs", "No combinations yet", "Add normalized modifiers now; generation is intentionally deferred."],
+  ["Highest Upside", "No observed market data", "Upside will use robust percentiles—not unrealistic listing outliers."],
+  ["Most Liquid", "Liquidity unknown", "Value and liquidity will remain separate analytical dimensions."],
+  ["Needs Research", "Catalog foundation", "Import verified modifier records to prepare the research queue."],
+  ["Recently Updated", "Local-first", "All catalog changes are persisted in your local SQLite database."],
+];
+export default async function Dashboard() {
+  const count = await prisma.modifier.count();
+  return <div className="lg:flex"><Sidebar/><main className="min-w-0 flex-1 p-5 md:p-8 lg:p-10"><header className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><div className="mb-2 text-xs font-semibold uppercase tracking-[.22em] text-gold">Watcher's Eye intelligence</div><h1 className="text-3xl font-semibold text-white">Research Dashboard</h1><p className="mt-2 text-sm text-slate-400">Observed listing research, without pretending listings are completed sales.</p></div><a href="/modifiers" className="rounded-lg bg-cyan px-4 py-2 text-sm font-semibold text-slate-950">Open modifier catalog</a></header><section className="mb-8 grid gap-4 sm:grid-cols-3"><div className="rounded-xl border border-slate-800 bg-panel p-5"><div className="text-xs uppercase tracking-wider text-slate-500">Catalog records</div><div className="mt-2 text-3xl font-semibold text-white">{count}</div></div><div className="rounded-xl border border-slate-800 bg-panel p-5"><div className="text-xs uppercase tracking-wider text-slate-500">Market source</div><div className="mt-2 text-lg font-semibold text-gold">Manual only</div></div><div className="rounded-xl border border-slate-800 bg-panel p-5"><div className="text-xs uppercase tracking-wider text-slate-500">Data boundary</div><div className="mt-2 text-lg font-semibold text-emerald-400">Local SQLite</div></div></section><section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{cards.map(([title,empty,detail]) => <article key={title} className="min-h-44 rounded-xl border border-slate-800 bg-panel/80 p-5"><div className="mb-6 flex items-center justify-between"><h2 className="font-semibold text-white">{title}</h2><span className="text-slate-600">↗</span></div><div className="text-sm font-medium text-slate-300">{empty}</div><p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p></article>)}</section><div className="mt-8 rounded-xl border border-gold/20 bg-gold/5 p-5"><div className="font-medium text-gold">Milestone 1 · Data foundation</div><p className="mt-2 text-sm leading-6 text-slate-400">This release intentionally avoids fabricated modifier mechanics, pricing, probabilities, and aura synergy. Begin with the catalog template, then replace its clearly labeled placeholder with verified or user-maintained research.</p></div></main></div>;
+}
