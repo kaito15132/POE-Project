@@ -5,7 +5,7 @@ A private, local-first research workspace for **observed Watcher's Eye listings*
 ## Prerequisites
 
 - Node.js 20 or newer
-- npm (the repository uses the committed `package-lock.json`; do not use another package manager)
+- npm (the intended lockfile is `package-lock.json`; do not use another package manager)
 - Network access during the one-time setup phase to `registry.npmjs.org` and, when Prisma needs an engine binary, `binaries.prisma.sh`
 
 ## Installation
@@ -18,6 +18,8 @@ npm ci
 ```
 
 Do not repeatedly run `npm install` during normal development or agent work. Change dependencies intentionally in `package.json`, refresh the lockfile once, and commit both files together.
+
+If the lockfile is absent, a maintainer with registry access must bootstrap it once with `npm install --package-lock-only --ignore-scripts`, review it, and commit it. The restricted agent phase must not fabricate a lockfile or retry that command after a network-policy failure.
 
 ## Database setup
 
